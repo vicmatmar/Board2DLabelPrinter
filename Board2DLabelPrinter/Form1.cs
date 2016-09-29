@@ -47,8 +47,8 @@ namespace Board2DLabelPrinter
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            float dimension_inches = (float)numericUpDownSize.Value;
-            if (comboBoxSizeUnit.Text == "mm")
+            float dimension_inches = (float)numericUpDown_size.Value;
+            if (comboBox_units.Text == "mm")
                 dimension_inches = milimeter_to_inches(dimension_inches);
 
             // Calculate number of pixels.  Note we use dpi in x direction
@@ -92,8 +92,8 @@ namespace Board2DLabelPrinter
 
         private void pictureBox2_Paint(object sender, PaintEventArgs e)
         {
-            float dimension_inches = (float)numericUpDownSize.Value;
-            if (comboBoxSizeUnit.Text == "mm")
+            float dimension_inches = (float)numericUpDown_size.Value;
+            if (comboBox_units.Text == "mm")
                 dimension_inches = milimeter_to_inches(dimension_inches);
 
             // Calculate number of pixels.  Note we use dpi in x direction
@@ -108,18 +108,20 @@ namespace Board2DLabelPrinter
                 pixels = (int)(dimension_inches * dpi_x);
             }
 
-            float space_between = (float)numericUpDown_SpaceBetween.Value;
-            if (comboBox_spaceBetweenUnits.Text == "mm")
-                space_between = milimeter_to_inches(space_between);
-            int space_between_pixels = (int)(space_between * dpi_x);
 
             int number_of_labels_per_page = (int)numericUpDown_labelsPerPage.Value;
 
+            float space_between = (float)numericUpDown_spaceBetween.Value;
             float left_margin = (float)numericUpDown_leftMargin.Value;
-            if (comboBox_marginUnit.Text == "mm")
+            if (comboBox_units.Text == "mm")
+            {
+                space_between = milimeter_to_inches(space_between);
                 left_margin = milimeter_to_inches(left_margin);
+            }
+            int space_between_pixels = (int)(space_between * dpi_x);
+            int left_margin_pixels = (int)(left_margin * dpi_x);
 
-            float offset_x = 0.0f + left_margin * dpi_x;
+            int offset_x = left_margin_pixels;
             for (int i = 0; i < number_of_labels_per_page; i++)
             {
                 Bitmap bitmap = renderToBitmap(_qrCodes[i].Matrix, pixels);
@@ -178,71 +180,50 @@ namespace Board2DLabelPrinter
 
         private void comboBoxSizeUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
-            float val = (float)numericUpDownSize.Value;
-            switch (comboBoxSizeUnit.Text)
+            switch (comboBox_units.Text)
             {
                 case "mm":
-                    numericUpDownSize.Maximum = 100;
-                    numericUpDownSize.Increment = 1;
-                    numericUpDownSize.Value = (decimal)inches_to_milimeter(val);
+                    numericUpDown_size.Value = (decimal)inches_to_milimeter((float)numericUpDown_size.Value);
+                    numericUpDown_leftMargin.Value = (decimal)inches_to_milimeter((float)numericUpDown_leftMargin.Value);
+                    numericUpDown_spaceBetween.Value = (decimal)inches_to_milimeter((float)numericUpDown_spaceBetween.Value);
 
-                    break;
-                case "in":
-                    numericUpDownSize.Value = (decimal)milimeter_to_inches(val);
-                    numericUpDownSize.Maximum = 4;
-                    numericUpDownSize.Increment = 0.25M;
+                    numericUpDown_size.Maximum = 50;
+                    numericUpDown_size.Minimum = 1;
+                    numericUpDown_size.Increment = 0.5m;
 
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void comboBoxSpaceBetweenUnits_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            float val = (float)numericUpDown_SpaceBetween.Value;
-            switch (comboBox_spaceBetweenUnits.Text)
-            {
-                case "mm":
-                    numericUpDown_SpaceBetween.Maximum = 50;
-                    numericUpDown_SpaceBetween.Value = (decimal)inches_to_milimeter(val);
-                    numericUpDown_SpaceBetween.Increment = 0.5M;
-
-                    break;
-                case "in":
-                    numericUpDown_SpaceBetween.Value = (decimal)milimeter_to_inches(val);
-                    numericUpDown_SpaceBetween.Maximum = 2;
-                    numericUpDown_SpaceBetween.Increment = 0.01M;
-
-                    break;
-                default:
-                    break;
-            }
-
-        }
-
-        private void comboBoxMarginUnit_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            float val = (float)numericUpDown_leftMargin.Value;
-            switch (comboBox_marginUnit.Text)
-            {
-                case "mm":
                     numericUpDown_leftMargin.Maximum = 50;
-                    numericUpDown_leftMargin.Value = (decimal)inches_to_milimeter(val);
-                    numericUpDown_leftMargin.Increment = 0.5M;
+                    numericUpDown_leftMargin.Minimum = 0;
+                    numericUpDown_leftMargin.Increment = 0.1m;
+
+                    numericUpDown_spaceBetween.Maximum = 50;
+                    numericUpDown_size.Minimum = 0;
+                    numericUpDown_spaceBetween.Increment = 0.1m;
+
 
                     break;
                 case "in":
-                    numericUpDown_leftMargin.Value = (decimal)milimeter_to_inches(val);
+                    numericUpDown_size.Value = (decimal)milimeter_to_inches((float)numericUpDown_size.Value);
+                    numericUpDown_leftMargin.Value = (decimal)milimeter_to_inches((float)numericUpDown_leftMargin.Value);
+                    numericUpDown_spaceBetween.Value = (decimal)milimeter_to_inches((float)numericUpDown_spaceBetween.Value);
+
+                    numericUpDown_size.Maximum = 2;
+                    numericUpDown_size.Minimum = 0.05m;
+                    numericUpDown_size.Increment = 0.01m;
+
                     numericUpDown_leftMargin.Maximum = 2;
-                    numericUpDown_leftMargin.Increment = 0.01M;
+                    numericUpDown_leftMargin.Minimum = 0;
+                    numericUpDown_leftMargin.Increment = 0.01m;
+
+                    numericUpDown_spaceBetween.Maximum = 2;
+                    numericUpDown_size.Minimum = 0;
+                    numericUpDown_spaceBetween.Increment = 0.01m;
 
                     break;
                 default:
                     break;
             }
-
         }
+
 
         private void numericUpDownSize_ValueChanged(object sender, EventArgs e)
         {
@@ -311,8 +292,8 @@ namespace Board2DLabelPrinter
 
         private void printDocumentSingle_PrintPage(object sender, PrintPageEventArgs e)
         {
-            float dimension_inches = (float)numericUpDownSize.Value;
-            if (comboBoxSizeUnit.Text == "mm")
+            float dimension_inches = (float)numericUpDown_size.Value;
+            if (comboBox_units.Text == "mm")
                 dimension_inches = milimeter_to_inches(dimension_inches);
 
             // Calculate number of pixels.  Note we use dpi in x direction
@@ -353,8 +334,8 @@ namespace Board2DLabelPrinter
 
         private void printDocumentAll_PrintPage(object sender, PrintPageEventArgs e)
         {
-            float dimension_inches = (float)numericUpDownSize.Value;
-            if (comboBoxSizeUnit.Text == "mm")
+            float dimension_inches = (float)numericUpDown_size.Value;
+            if (comboBox_units.Text == "mm")
                 dimension_inches = milimeter_to_inches(dimension_inches);
 
             // Calculate number of pixels.  Note we use dpi in x direction
@@ -374,14 +355,15 @@ namespace Board2DLabelPrinter
             e.Graphics.PageUnit = GraphicsUnit.Pixel;
 
             float left_margin = (float)numericUpDown_leftMargin.Value;
-            if (comboBox_marginUnit.Text == "mm")
+            float space_between = (float)numericUpDown_spaceBetween.Value;
+
+            if (comboBox_units.Text == "mm")
+            {
                 left_margin = milimeter_to_inches(left_margin);
+                space_between = milimeter_to_inches(space_between);
+            }
 
             int offset_x = (int)(left_margin * dpi_x);
-
-            float space_between = (float)numericUpDown_SpaceBetween.Value;
-            if (comboBox_spaceBetweenUnits.Text == "mm")
-                space_between = milimeter_to_inches(space_between);
             int space_between_pixels = (int)(space_between * dpi_x);
 
             for (int i = 0; i < number_of_labels; i++)
