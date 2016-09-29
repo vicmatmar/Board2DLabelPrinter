@@ -113,19 +113,23 @@ namespace Board2DLabelPrinter
 
             float space_between = (float)numericUpDown_spaceBetween.Value;
             float left_margin = (float)numericUpDown_leftMargin.Value;
+            float top_margin = (float)numericUpDown_topMargin.Value;
             if (comboBox_units.Text == "mm")
             {
                 space_between = milimeter_to_inches(space_between);
                 left_margin = milimeter_to_inches(left_margin);
+                top_margin = milimeter_to_inches(top_margin);
             }
             int space_between_pixels = (int)(space_between * dpi_x);
             int left_margin_pixels = (int)(left_margin * dpi_x);
+            int top_margin_pixels = (int)(top_margin * dpi_y);
 
             int offset_x = left_margin_pixels;
+            int offset_y = top_margin_pixels;
             for (int i = 0; i < number_of_labels_per_page; i++)
             {
                 Bitmap bitmap = renderToBitmap(_qrCodes[i].Matrix, pixels);
-                e.Graphics.DrawImage(bitmap, offset_x, 0);
+                e.Graphics.DrawImage(bitmap, offset_x, offset_y);
                 offset_x += bitmap.Width + space_between_pixels;
             }
 
@@ -183,21 +187,25 @@ namespace Board2DLabelPrinter
             switch (comboBox_units.Text)
             {
                 case "mm":
+                    numericUpDown_size.Maximum = 50;
+                    numericUpDown_leftMargin.Maximum = 50;
+                    numericUpDown_spaceBetween.Maximum = 50;
+                    numericUpDown_topMargin.Maximum = 50;
+
                     numericUpDown_size.Value = (decimal)inches_to_milimeter((float)numericUpDown_size.Value);
                     numericUpDown_leftMargin.Value = (decimal)inches_to_milimeter((float)numericUpDown_leftMargin.Value);
                     numericUpDown_spaceBetween.Value = (decimal)inches_to_milimeter((float)numericUpDown_spaceBetween.Value);
+                    numericUpDown_topMargin.Value = (decimal)inches_to_milimeter((float)numericUpDown_topMargin.Value);
 
-                    numericUpDown_size.Maximum = 50;
                     numericUpDown_size.Minimum = 1;
-                    numericUpDown_size.Increment = 0.5m;
-
-                    numericUpDown_leftMargin.Maximum = 50;
                     numericUpDown_leftMargin.Minimum = 0;
-                    numericUpDown_leftMargin.Increment = 0.1m;
+                    numericUpDown_spaceBetween.Minimum = 0;
+                    numericUpDown_topMargin.Minimum = 0;
 
-                    numericUpDown_spaceBetween.Maximum = 50;
-                    numericUpDown_size.Minimum = 0;
+                    numericUpDown_size.Increment = 0.5m;
+                    numericUpDown_leftMargin.Increment = 0.1m;
                     numericUpDown_spaceBetween.Increment = 0.1m;
+                    numericUpDown_topMargin.Increment = 0.1m;
 
 
                     break;
@@ -205,18 +213,22 @@ namespace Board2DLabelPrinter
                     numericUpDown_size.Value = (decimal)milimeter_to_inches((float)numericUpDown_size.Value);
                     numericUpDown_leftMargin.Value = (decimal)milimeter_to_inches((float)numericUpDown_leftMargin.Value);
                     numericUpDown_spaceBetween.Value = (decimal)milimeter_to_inches((float)numericUpDown_spaceBetween.Value);
+                    numericUpDown_topMargin.Value = (decimal)milimeter_to_inches((float)numericUpDown_topMargin.Value);
 
                     numericUpDown_size.Maximum = 2;
-                    numericUpDown_size.Minimum = 0.05m;
-                    numericUpDown_size.Increment = 0.01m;
-
                     numericUpDown_leftMargin.Maximum = 2;
-                    numericUpDown_leftMargin.Minimum = 0;
-                    numericUpDown_leftMargin.Increment = 0.01m;
-
                     numericUpDown_spaceBetween.Maximum = 2;
-                    numericUpDown_size.Minimum = 0;
+                    numericUpDown_topMargin.Maximum = 2;
+
+                    numericUpDown_size.Minimum = 0.05m;
+                    numericUpDown_leftMargin.Minimum = 0;
+                    numericUpDown_spaceBetween.Minimum = 0;
+                    numericUpDown_topMargin.Minimum = 0;
+
+                    numericUpDown_size.Increment = 0.01m;
+                    numericUpDown_leftMargin.Increment = 0.01m;
                     numericUpDown_spaceBetween.Increment = 0.01m;
+                    numericUpDown_topMargin.Increment = 0.01m;
 
                     break;
                 default:
@@ -269,13 +281,7 @@ namespace Board2DLabelPrinter
 
         private void numericUpDownZoomFactor_ValueChanged(object sender, EventArgs e)
         {
-            float zoom_factor = (float)numericUpDownZoomFactor.Value;
-            if (zoom_factor < 1)
-                numericUpDownZoomFactor.Increment = 0.1M;
-            else
-                numericUpDownZoomFactor.Increment = 1.0M;
-
-            pictureRefreshAll();
+            pictureBox1.Refresh();
         }
 
         private void printSingleToolStripMenuItem_Click(object sender, EventArgs e)
@@ -355,15 +361,18 @@ namespace Board2DLabelPrinter
             e.Graphics.PageUnit = GraphicsUnit.Pixel;
 
             float left_margin = (float)numericUpDown_leftMargin.Value;
+            float top_margin = (float)numericUpDown_topMargin.Value;
             float space_between = (float)numericUpDown_spaceBetween.Value;
 
             if (comboBox_units.Text == "mm")
             {
                 left_margin = milimeter_to_inches(left_margin);
+                top_margin = milimeter_to_inches(top_margin);
                 space_between = milimeter_to_inches(space_between);
             }
 
             int offset_x = (int)(left_margin * dpi_x);
+            int offset_y = (int)(top_margin * dpi_y);
             int space_between_pixels = (int)(space_between * dpi_x);
 
             for (int i = 0; i < number_of_labels; i++)
@@ -371,7 +380,7 @@ namespace Board2DLabelPrinter
                 Bitmap bitmap = renderToBitmap(_qrCodes[0].Matrix, pixels);
                 bitmap.SetResolution(dpi_x, dpi_y);
 
-                e.Graphics.DrawImage(bitmap, offset_x, 0);
+                e.Graphics.DrawImage(bitmap, offset_x, offset_y);
                 offset_x += pixels + space_between_pixels;
             }
         }
@@ -387,6 +396,11 @@ namespace Board2DLabelPrinter
         }
 
         private void numericUpDown_leftMargin_ValueChanged(object sender, EventArgs e)
+        {
+            pictureBox2.Refresh();
+        }
+
+        private void numericUpDown_topMargin_ValueChanged(object sender, EventArgs e)
         {
             pictureBox2.Refresh();
         }
