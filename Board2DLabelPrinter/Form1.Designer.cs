@@ -34,7 +34,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.contextMenuStrip_Picture1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.printToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.printSingelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
@@ -48,8 +48,18 @@
             this.label5 = new System.Windows.Forms.Label();
             this.numericUpDownZoomFactor = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.numericUpDown_labelsPerPage = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.numericUpDown_SpaceBetween = new System.Windows.Forms.NumericUpDown();
+            this.comboBox_spaceBetweenUnits = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.numericUpDown_leftMargin = new System.Windows.Forms.NumericUpDown();
+            this.comboBox_marginUnit = new System.Windows.Forms.ComboBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.contextMenuStrip_Picture2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolPrintAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.contextMenuStrip_Picture1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -58,8 +68,12 @@
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownZoomFactor)).BeginInit();
             this.groupBox3.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_labelsPerPage)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_SpaceBetween)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_leftMargin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            this.contextMenuStrip_Picture2.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBoxData
@@ -100,7 +114,7 @@
             this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.ContextMenuStrip = this.contextMenuStrip_Picture1;
-            this.pictureBox1.Location = new System.Drawing.Point(91, 49);
+            this.pictureBox1.Location = new System.Drawing.Point(91, 61);
             this.pictureBox1.MinimumSize = new System.Drawing.Size(100, 100);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(100, 100);
@@ -112,16 +126,16 @@
             // contextMenuStrip_Picture1
             // 
             this.contextMenuStrip_Picture1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.printToolStripMenuItem});
+            this.printSingelToolStripMenuItem});
             this.contextMenuStrip_Picture1.Name = "contextMenuStrip_Picture1";
             this.contextMenuStrip_Picture1.Size = new System.Drawing.Size(100, 26);
             // 
-            // printToolStripMenuItem
+            // printSingelToolStripMenuItem
             // 
-            this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-            this.printToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
-            this.printToolStripMenuItem.Text = "&Print";
-            this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
+            this.printSingelToolStripMenuItem.Name = "printSingelToolStripMenuItem";
+            this.printSingelToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+            this.printSingelToolStripMenuItem.Text = "&Print";
+            this.printSingelToolStripMenuItem.Click += new System.EventHandler(this.printSingleToolStripMenuItem_Click);
             // 
             // groupBox1
             // 
@@ -178,7 +192,7 @@
             this.comboBoxSizeUnit.Items.AddRange(new object[] {
             "mm",
             "in"});
-            this.comboBoxSizeUnit.Location = new System.Drawing.Point(121, 3);
+            this.comboBoxSizeUnit.Location = new System.Drawing.Point(129, 3);
             this.comboBoxSizeUnit.Name = "comboBoxSizeUnit";
             this.comboBoxSizeUnit.Size = new System.Drawing.Size(44, 21);
             this.comboBoxSizeUnit.TabIndex = 1;
@@ -253,7 +267,7 @@
             65536});
             this.numericUpDownSize.Location = new System.Drawing.Point(67, 3);
             this.numericUpDownSize.Name = "numericUpDownSize";
-            this.numericUpDownSize.Size = new System.Drawing.Size(48, 20);
+            this.numericUpDownSize.Size = new System.Drawing.Size(56, 20);
             this.numericUpDownSize.TabIndex = 0;
             this.numericUpDownSize.Value = new decimal(new int[] {
             100,
@@ -280,7 +294,7 @@
             // 
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(88, 165);
+            this.label5.Location = new System.Drawing.Point(88, 177);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(37, 13);
             this.label5.TabIndex = 18;
@@ -290,7 +304,7 @@
             // 
             this.numericUpDownZoomFactor.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.numericUpDownZoomFactor.DecimalPlaces = 2;
-            this.numericUpDownZoomFactor.Location = new System.Drawing.Point(131, 163);
+            this.numericUpDownZoomFactor.Location = new System.Drawing.Point(131, 175);
             this.numericUpDownZoomFactor.Minimum = new decimal(new int[] {
             1,
             0,
@@ -311,18 +325,42 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox3.Controls.Add(this.numericUpDown_labelsPerPage);
+            this.groupBox3.Controls.Add(this.tableLayoutPanel2);
             this.groupBox3.Controls.Add(this.pictureBox2);
             this.groupBox3.Location = new System.Drawing.Point(12, 243);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(581, 193);
+            this.groupBox3.Size = new System.Drawing.Size(581, 202);
             this.groupBox3.TabIndex = 20;
             this.groupBox3.TabStop = false;
             // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 5;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.Controls.Add(this.numericUpDown_labelsPerPage, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.label1, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.label7, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.numericUpDown_SpaceBetween, 3, 0);
+            this.tableLayoutPanel2.Controls.Add(this.comboBox_spaceBetweenUnits, 4, 0);
+            this.tableLayoutPanel2.Controls.Add(this.label8, 2, 1);
+            this.tableLayoutPanel2.Controls.Add(this.numericUpDown_leftMargin, 3, 1);
+            this.tableLayoutPanel2.Controls.Add(this.comboBox_marginUnit, 4, 1);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(16, 19);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(325, 57);
+            this.tableLayoutPanel2.TabIndex = 24;
+            // 
             // numericUpDown_labelsPerPage
             // 
-            this.numericUpDown_labelsPerPage.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.numericUpDown_labelsPerPage.Location = new System.Drawing.Point(60, 33);
+            this.numericUpDown_labelsPerPage.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.numericUpDown_labelsPerPage.Location = new System.Drawing.Point(85, 3);
             this.numericUpDown_labelsPerPage.Maximum = new decimal(new int[] {
             10,
             0,
@@ -341,6 +379,100 @@
             0,
             0,
             0});
+            this.numericUpDown_labelsPerPage.ValueChanged += new System.EventHandler(this.numericUpDown_labelsPerPage_ValueChanged);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(3, 7);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(76, 13);
+            this.label1.TabIndex = 20;
+            this.label1.Text = "Labels per row";
+            // 
+            // label7
+            // 
+            this.label7.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(123, 7);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(78, 13);
+            this.label7.TabIndex = 23;
+            this.label7.Text = "Label Spacing:";
+            // 
+            // numericUpDown_SpaceBetween
+            // 
+            this.numericUpDown_SpaceBetween.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.numericUpDown_SpaceBetween.DecimalPlaces = 3;
+            this.numericUpDown_SpaceBetween.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
+            this.numericUpDown_SpaceBetween.Location = new System.Drawing.Point(207, 3);
+            this.numericUpDown_SpaceBetween.Name = "numericUpDown_SpaceBetween";
+            this.numericUpDown_SpaceBetween.Size = new System.Drawing.Size(48, 20);
+            this.numericUpDown_SpaceBetween.TabIndex = 21;
+            this.numericUpDown_SpaceBetween.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            65536});
+            this.numericUpDown_SpaceBetween.ValueChanged += new System.EventHandler(this.numericUpDown_SpaceBetween_ValueChanged);
+            // 
+            // comboBox_spaceBetweenUnits
+            // 
+            this.comboBox_spaceBetweenUnits.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.comboBox_spaceBetweenUnits.FormattingEnabled = true;
+            this.comboBox_spaceBetweenUnits.Items.AddRange(new object[] {
+            "mm",
+            "in"});
+            this.comboBox_spaceBetweenUnits.Location = new System.Drawing.Point(261, 3);
+            this.comboBox_spaceBetweenUnits.Name = "comboBox_spaceBetweenUnits";
+            this.comboBox_spaceBetweenUnits.Size = new System.Drawing.Size(44, 21);
+            this.comboBox_spaceBetweenUnits.TabIndex = 22;
+            this.comboBox_spaceBetweenUnits.Text = "mm";
+            this.comboBox_spaceBetweenUnits.SelectedIndexChanged += new System.EventHandler(this.comboBoxSpaceBetweenUnits_SelectedIndexChanged);
+            // 
+            // label8
+            // 
+            this.label8.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(123, 35);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(63, 13);
+            this.label8.TabIndex = 24;
+            this.label8.Text = "Left Margin:";
+            // 
+            // numericUpDown_leftMargin
+            // 
+            this.numericUpDown_leftMargin.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.numericUpDown_leftMargin.DecimalPlaces = 3;
+            this.numericUpDown_leftMargin.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
+            this.numericUpDown_leftMargin.Location = new System.Drawing.Point(207, 32);
+            this.numericUpDown_leftMargin.Name = "numericUpDown_leftMargin";
+            this.numericUpDown_leftMargin.Size = new System.Drawing.Size(48, 20);
+            this.numericUpDown_leftMargin.TabIndex = 25;
+            this.numericUpDown_leftMargin.ValueChanged += new System.EventHandler(this.numericUpDown_leftMargin_ValueChanged);
+            // 
+            // comboBox_marginUnit
+            // 
+            this.comboBox_marginUnit.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.comboBox_marginUnit.FormattingEnabled = true;
+            this.comboBox_marginUnit.Items.AddRange(new object[] {
+            "mm",
+            "in"});
+            this.comboBox_marginUnit.Location = new System.Drawing.Point(261, 31);
+            this.comboBox_marginUnit.Name = "comboBox_marginUnit";
+            this.comboBox_marginUnit.Size = new System.Drawing.Size(44, 21);
+            this.comboBox_marginUnit.TabIndex = 26;
+            this.comboBox_marginUnit.Text = "mm";
+            this.comboBox_marginUnit.SelectedIndexChanged += new System.EventHandler(this.comboBoxMarginUnit_SelectedIndexChanged);
             // 
             // pictureBox2
             // 
@@ -348,6 +480,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox2.ContextMenuStrip = this.contextMenuStrip_Picture2;
             this.pictureBox2.Location = new System.Drawing.Point(10, 87);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(553, 100);
@@ -355,14 +488,29 @@
             this.pictureBox2.TabStop = false;
             this.pictureBox2.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox2_Paint);
             // 
+            // contextMenuStrip_Picture2
+            // 
+            this.contextMenuStrip_Picture2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolPrintAllStripMenuItem});
+            this.contextMenuStrip_Picture2.Name = "contextMenuStrip_Picture1";
+            this.contextMenuStrip_Picture2.Size = new System.Drawing.Size(100, 26);
+            // 
+            // toolPrintAllStripMenuItem
+            // 
+            this.toolPrintAllStripMenuItem.Name = "toolPrintAllStripMenuItem";
+            this.toolPrintAllStripMenuItem.Size = new System.Drawing.Size(99, 22);
+            this.toolPrintAllStripMenuItem.Text = "&Print";
+            this.toolPrintAllStripMenuItem.Click += new System.EventHandler(this.printAllToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(626, 570);
+            this.ClientSize = new System.Drawing.Size(626, 482);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
+            this.MinimumSize = new System.Drawing.Size(642, 521);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -377,8 +525,13 @@
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownZoomFactor)).EndInit();
             this.groupBox3.ResumeLayout(false);
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_labelsPerPage)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_SpaceBetween)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_leftMargin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            this.contextMenuStrip_Picture2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -403,8 +556,18 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Picture1;
-        private System.Windows.Forms.ToolStripMenuItem printToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem printSingelToolStripMenuItem;
         private System.Windows.Forms.NumericUpDown numericUpDown_labelsPerPage;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Picture2;
+        private System.Windows.Forms.ToolStripMenuItem toolPrintAllStripMenuItem;
+        private System.Windows.Forms.ComboBox comboBox_spaceBetweenUnits;
+        private System.Windows.Forms.NumericUpDown numericUpDown_SpaceBetween;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.NumericUpDown numericUpDown_leftMargin;
+        private System.Windows.Forms.ComboBox comboBox_marginUnit;
     }
 }
 

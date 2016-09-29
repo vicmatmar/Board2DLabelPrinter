@@ -108,17 +108,23 @@ namespace Board2DLabelPrinter
                 pixels = (int)(dimension_inches * dpi_x);
             }
 
-            // Check whether we have enough space
-            //if (pixels < qrCode.Matrix.Width)
-            //throw new Exception("Too small");
+            float space_between = (float)numericUpDown_SpaceBetween.Value;
+            if (comboBox_spaceBetweenUnits.Text == "mm")
+                space_between = milimeter_to_inches(space_between);
+            int space_between_pixels = (int)(space_between * dpi_x);
 
             int number_of_labels_per_page = (int)numericUpDown_labelsPerPage.Value;
-            float offset_x = 0.0f;
+
+            float left_margin = (float)numericUpDown_leftMargin.Value;
+            if (comboBox_marginUnit.Text == "mm")
+                left_margin = milimeter_to_inches(left_margin);
+
+            float offset_x = 0.0f + left_margin * dpi_x;
             for (int i = 0; i < number_of_labels_per_page; i++)
             {
                 Bitmap bitmap = renderToBitmap(_qrCodes[i].Matrix, pixels);
                 e.Graphics.DrawImage(bitmap, offset_x, 0);
-                offset_x += bitmap.Width;
+                offset_x += bitmap.Width + space_between_pixels;
             }
 
         }
@@ -164,23 +170,10 @@ namespace Board2DLabelPrinter
             encodeAll();
         }
 
-
-        void encodeSingle()
-        {
-            string data = this.textBoxData.Text;
-            ErrorCorrectionLevel correction_level = _dic_error_correction[comboBoxCorrectionLevel.Text[0]];
-
-            if (_qrCodes == null || _qrCodes.Length < 1)
-                _qrCodes = new QrCode[1];
-            QrEncoder qrEncoder = new QrEncoder(correction_level);
-            _qrCodes[0] = qrEncoder.Encode(data);
-
-            pictureRefresh();
-        }
-
-        void pictureRefresh()
+        void pictureRefreshAll()
         {
             pictureBox1.Refresh();
+            pictureBox2.Refresh();
         }
 
         private void comboBoxSizeUnit_SelectedIndexChanged(object sender, EventArgs e)
@@ -192,14 +185,12 @@ namespace Board2DLabelPrinter
                     numericUpDownSize.Maximum = 100;
                     numericUpDownSize.Increment = 1;
                     numericUpDownSize.Value = (decimal)inches_to_milimeter(val);
-                    numericUpDownSize.Update();
 
                     break;
                 case "in":
+                    numericUpDownSize.Value = (decimal)milimeter_to_inches(val);
                     numericUpDownSize.Maximum = 4;
                     numericUpDownSize.Increment = 0.25M;
-                    numericUpDownSize.Value = (decimal)milimeter_to_inches(val);
-                    numericUpDownSize.Update();
 
                     break;
                 default:
@@ -207,18 +198,67 @@ namespace Board2DLabelPrinter
             }
         }
 
+        private void comboBoxSpaceBetweenUnits_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            float val = (float)numericUpDown_SpaceBetween.Value;
+            switch (comboBox_spaceBetweenUnits.Text)
+            {
+                case "mm":
+                    numericUpDown_SpaceBetween.Maximum = 50;
+                    numericUpDown_SpaceBetween.Value = (decimal)inches_to_milimeter(val);
+                    numericUpDown_SpaceBetween.Increment = 0.5M;
+
+                    break;
+                case "in":
+                    numericUpDown_SpaceBetween.Value = (decimal)milimeter_to_inches(val);
+                    numericUpDown_SpaceBetween.Maximum = 2;
+                    numericUpDown_SpaceBetween.Increment = 0.01M;
+
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        private void comboBoxMarginUnit_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            float val = (float)numericUpDown_leftMargin.Value;
+            switch (comboBox_marginUnit.Text)
+            {
+                case "mm":
+                    numericUpDown_leftMargin.Maximum = 50;
+                    numericUpDown_leftMargin.Value = (decimal)inches_to_milimeter(val);
+                    numericUpDown_leftMargin.Increment = 0.5M;
+
+                    break;
+                case "in":
+                    numericUpDown_leftMargin.Value = (decimal)milimeter_to_inches(val);
+                    numericUpDown_leftMargin.Maximum = 2;
+                    numericUpDown_leftMargin.Increment = 0.01M;
+
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
         private void numericUpDownSize_ValueChanged(object sender, EventArgs e)
         {
-            pictureRefresh();
+            pictureRefreshAll();
         }
 
         private void comboBoxQuiteZone_SelectedIndexChanged(object sender, EventArgs e)
         {
-            pictureRefresh();
+            pictureRefreshAll();
         }
 
         void encodeAll()
         {
+            pictureBox1.CreateGraphics().Clear(Color.Black);
+            pictureBox2.CreateGraphics().Clear(Color.Black);
+
             Cursor oldcursor = this.Cursor;
             this.Cursor = Cursors.WaitCursor;
 
@@ -235,7 +275,7 @@ namespace Board2DLabelPrinter
                 _qrCodes[i] = qrEncoder.Encode(serial);
             }
 
-            pictureRefresh();
+            pictureRefreshAll();
 
             this.Cursor = oldcursor;
 
@@ -254,14 +294,14 @@ namespace Board2DLabelPrinter
             else
                 numericUpDownZoomFactor.Increment = 1.0M;
 
-            pictureRefresh();
+            pictureRefreshAll();
         }
 
-        private void printToolStripMenuItem_Click(object sender, EventArgs e)
+        private void printSingleToolStripMenuItem_Click(object sender, EventArgs e)
         {
             PrintDialog printDialog = new PrintDialog();
             printDialog.Document = new PrintDocument();
-            printDialog.Document.PrintPage += printDocument1_PrintPage;
+            printDialog.Document.PrintPage += printDocumentSingle_PrintPage;
             DialogResult r = printDialog.ShowDialog();
             if (r == DialogResult.OK)
             {
@@ -269,7 +309,7 @@ namespace Board2DLabelPrinter
             }
         }
 
-        private void printDocument1_PrintPage(object sender, PrintPageEventArgs e)
+        private void printDocumentSingle_PrintPage(object sender, PrintPageEventArgs e)
         {
             float dimension_inches = (float)numericUpDownSize.Value;
             if (comboBoxSizeUnit.Text == "mm")
@@ -291,13 +331,82 @@ namespace Board2DLabelPrinter
             //if (pixels < qrCode.Matrix.Width)
             //throw new Exception("Too small");
 
+            e.Graphics.PageUnit = GraphicsUnit.Pixel;  // does not matter here
             Bitmap bitmap = renderToBitmap(_qrCodes[0].Matrix, pixels);
             bitmap.SetResolution(dpi_x, dpi_y);
-
-
             e.Graphics.DrawImage(bitmap, 0, 0);
 
         }
 
+        private void printAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PrintDialog printDialog = new PrintDialog();
+            printDialog.Document = new PrintDocument();
+            printDialog.Document.PrintPage += printDocumentAll_PrintPage;
+            DialogResult r = printDialog.ShowDialog();
+            if (r == DialogResult.OK)
+            {
+                printDialog.Document.Print();
+            }
+
+        }
+
+        private void printDocumentAll_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            float dimension_inches = (float)numericUpDownSize.Value;
+            if (comboBoxSizeUnit.Text == "mm")
+                dimension_inches = milimeter_to_inches(dimension_inches);
+
+            // Calculate number of pixels.  Note we use dpi in x direction
+            // but we should probably use whichever is lowest
+            float dpi_x = e.Graphics.DpiX;
+            float dpi_y = e.Graphics.DpiY;
+            int pixels = (int)(dimension_inches * dpi_x);
+            int number_of_labels = (int)numericUpDown_labelsPerPage.Value;
+
+            // If too small lets just use the entired width
+            if (pixels <= 0)
+            {
+                dimension_inches = e.PageSettings.PrintableArea.Width / 100 / number_of_labels;
+                pixels = (int)(dimension_inches * dpi_x);
+            }
+
+            e.Graphics.PageUnit = GraphicsUnit.Pixel;
+
+            float left_margin = (float)numericUpDown_leftMargin.Value;
+            if (comboBox_marginUnit.Text == "mm")
+                left_margin = milimeter_to_inches(left_margin);
+
+            int offset_x = (int)(left_margin * dpi_x);
+
+            float space_between = (float)numericUpDown_SpaceBetween.Value;
+            if (comboBox_spaceBetweenUnits.Text == "mm")
+                space_between = milimeter_to_inches(space_between);
+            int space_between_pixels = (int)(space_between * dpi_x);
+
+            for (int i = 0; i < number_of_labels; i++)
+            {
+                Bitmap bitmap = renderToBitmap(_qrCodes[0].Matrix, pixels);
+                bitmap.SetResolution(dpi_x, dpi_y);
+
+                e.Graphics.DrawImage(bitmap, offset_x, 0);
+                offset_x += pixels + space_between_pixels;
+            }
+        }
+
+        private void numericUpDown_labelsPerPage_ValueChanged(object sender, EventArgs e)
+        {
+            encodeAll();
+        }
+
+        private void numericUpDown_SpaceBetween_ValueChanged(object sender, EventArgs e)
+        {
+            pictureBox2.Refresh();
+        }
+
+        private void numericUpDown_leftMargin_ValueChanged(object sender, EventArgs e)
+        {
+            pictureBox2.Refresh();
+        }
     }
 }
