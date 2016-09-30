@@ -13,7 +13,7 @@ using System.Drawing.Printing;
 
 using Gma.QrCodeNet.Encoding;
 using Gma.QrCodeNet.Encoding.Windows.Render;
-
+using System.Xml;
 namespace Board2DLabelPrinter
 {
     public partial class Form1 : Form
@@ -21,6 +21,7 @@ namespace Board2DLabelPrinter
         QrCode[] _qrCodes;
         Dictionary<char, Gma.QrCodeNet.Encoding.ErrorCorrectionLevel> _dic_error_correction = new Dictionary<char, ErrorCorrectionLevel>();
         Dictionary<char, QuietZoneModules> _dic_quite_zone = new Dictionary<char, QuietZoneModules>();
+        PrintDocument _print_doc = new PrintDocument();
 
         // private class used to hold product selection combobox
         class product_desc
@@ -80,7 +81,7 @@ namespace Board2DLabelPrinter
 
         Bitmap renderToBitmap(BitMatrix bitmatrix, int size_in_pixels)
         {
-            QuietZoneModules quite_zone = _dic_quite_zone[comboBoxQuiteZone.Text[0]];
+            QuietZoneModules quite_zone = _dic_quite_zone[comboBox_quiteZone.Text[0]];
             ISizeCalculation iSizeCal = new FixedCodeSize(size_in_pixels, quite_zone);
 
             DrawingBrushRenderer dRenderer = new DrawingBrushRenderer(iSizeCal, System.Windows.Media.Brushes.Black, System.Windows.Media.Brushes.White);
@@ -137,14 +138,40 @@ namespace Board2DLabelPrinter
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            // Get the products
             ManufacturingStore_DataContext dc = Utils.DC;
 
             product_desc[] products =
                 dc.Products.Select(s =>
                     new product_desc { Id = s.Id, Name = s.Name, ModelString = s.ModelString }).OrderBy(s => s.ModelString).ToArray();
-            comboBoxProducts.DataSource = products;
+            comboBox_products.DataSource = products;
 
+
+            // Get the printers
+            bool found_last_printer_used = false;
+            foreach (string printer_name in PrinterSettings.InstalledPrinters)
+            {
+                comboBox_printers.Items.Add(printer_name);
+
+                if (printer_name == Properties.Settings.Default.Last_Printer_Used_Name)
+                    found_last_printer_used = true;
+            }
+            if (found_last_printer_used)
+            {
+                comboBox_printers.Text = Properties.Settings.Default.Last_Printer_Used_Name;
+            }
+            else
+            {
+                comboBox_printers.Text = _print_doc.PrinterSettings.PrinterName;
+                Properties.Settings.Default.Last_Printer_Used_Name = _print_doc.PrinterSettings.PrinterName;
+                Properties.Settings.Default.Save();
+            }
+
+            // Don't let the window shrink smaller
+            this.MinimumSize = this.Size;
+
+            numericUpDown_labelsPerPage.Value = Properties.Settings.Default.Labels_In_Row;
+            numericUpDown_totalCount.Minimum = numericUpDown_labelsPerPage.Value;
         }
 
         float milimeter_to_inches(float milimeters)
@@ -167,13 +194,13 @@ namespace Board2DLabelPrinter
 
         private void comboBoxProducts_SelectedIndexChanged(object sender, EventArgs e)
         {
-            product_desc product = (product_desc)comboBoxProducts.SelectedItem;
+            product_desc product = (product_desc)comboBox_products.SelectedItem;
 
             // Where we start the serials needs to be implemented
             string serial = SerialNumber.BuildSerial(product.Id, 0);
             textBoxData.Text = serial;
 
-            encodeAll();
+            encodeRow();
         }
 
         void pictureRefreshAll()
@@ -247,7 +274,11 @@ namespace Board2DLabelPrinter
             pictureRefreshAll();
         }
 
-        void encodeAll()
+
+        /// <summary>
+        /// Encodes a row or page (all labels in a row)
+        /// </summary>
+        void encodeRow(int start_serial = 0)
         {
             pictureBox1.CreateGraphics().Clear(Color.Black);
             pictureBox2.CreateGraphics().Clear(Color.Black);
@@ -255,17 +286,18 @@ namespace Board2DLabelPrinter
             Cursor oldcursor = this.Cursor;
             this.Cursor = Cursors.WaitCursor;
 
-            product_desc product = (product_desc)comboBoxProducts.SelectedItem;
-            ErrorCorrectionLevel correction_level = _dic_error_correction[comboBoxCorrectionLevel.Text[0]];
+            product_desc product = (product_desc)comboBox_products.SelectedItem;
+            ErrorCorrectionLevel correction_level = _dic_error_correction[comboBox_correctionLevel.Text[0]];
             QrEncoder qrEncoder = new QrEncoder(correction_level);
 
             int n = (int)numericUpDown_labelsPerPage.Value;
             _qrCodes = new QrCode[n];
             // Where we start the serials needs to be implemented
+            int serial = start_serial;
             for (int i = 0; i < n; i++)
             {
-                string serial = SerialNumber.BuildSerial(product.Id, i);
-                _qrCodes[i] = qrEncoder.Encode(serial);
+                string complete_serial_str = SerialNumber.BuildSerial(product.Id, serial++);
+                _qrCodes[i] = qrEncoder.Encode(complete_serial_str);
             }
 
             pictureRefreshAll();
@@ -276,7 +308,7 @@ namespace Board2DLabelPrinter
 
         private void comboBoxCorrectionLevel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            encodeAll();
+            encodeRow();
         }
 
         private void numericUpDownZoomFactor_ValueChanged(object sender, EventArgs e)
@@ -335,7 +367,6 @@ namespace Board2DLabelPrinter
             {
                 printDialog.Document.Print();
             }
-
         }
 
         private void printDocumentAll_PrintPage(object sender, PrintPageEventArgs e)
@@ -377,7 +408,7 @@ namespace Board2DLabelPrinter
 
             for (int i = 0; i < number_of_labels; i++)
             {
-                Bitmap bitmap = renderToBitmap(_qrCodes[0].Matrix, pixels);
+                Bitmap bitmap = renderToBitmap(_qrCodes[i].Matrix, pixels);
                 bitmap.SetResolution(dpi_x, dpi_y);
 
                 e.Graphics.DrawImage(bitmap, offset_x, offset_y);
@@ -387,7 +418,21 @@ namespace Board2DLabelPrinter
 
         private void numericUpDown_labelsPerPage_ValueChanged(object sender, EventArgs e)
         {
-            encodeAll();
+
+            Properties.Settings.Default.Labels_In_Row = (int)numericUpDown_labelsPerPage.Value;
+            Properties.Settings.Default.Save();
+
+            int row_count = (int)numericUpDown_labelsPerPage.Value;
+            int total_count = (int)numericUpDown_totalCount.Value;
+
+            numericUpDown_totalCount.Minimum = row_count;
+            numericUpDown_totalCount.Increment = row_count;
+
+            while (total_count % row_count != 0)
+                total_count++;
+            numericUpDown_totalCount.Value = total_count;
+
+            encodeRow();
         }
 
         private void numericUpDown_SpaceBetween_ValueChanged(object sender, EventArgs e)
@@ -403,6 +448,121 @@ namespace Board2DLabelPrinter
         private void numericUpDown_topMargin_ValueChanged(object sender, EventArgs e)
         {
             pictureBox2.Refresh();
+        }
+
+        private void comboBoxPrinters_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Last_Printer_Used_Name = comboBox_printers.Text;
+            Properties.Settings.Default.Save();
+
+            comboBox_papers.Items.Clear();
+            _print_doc.PrinterSettings.PrinterName = comboBox_printers.Text;
+
+            bool found_last_paper_used = false;
+            foreach (PaperSize ps in _print_doc.PrinterSettings.PaperSizes)
+            {
+                comboBox_papers.Items.Add(ps);
+                if (papersize(ps) == Properties.Settings.Default.Last_Paper_Used)
+                    found_last_paper_used = true;
+            }
+            if (found_last_paper_used)
+            {
+                comboBox_papers.Text = Properties.Settings.Default.Last_Paper_Used;
+            }
+            else
+            {
+                PaperSize ps = _print_doc.DefaultPageSettings.PaperSize;
+                comboBox_papers.Text = papersize(ps);
+            }
+        }
+
+        string papersize(PaperSize ps)
+        {
+            return string.Format("{0} ({1:0.000} x {2:0.000})", ps.PaperName, (float)ps.Height / 100, (float)ps.Width / 100);
+        }
+
+        private void comboBox_papers_Format(object sender, ListControlConvertEventArgs e)
+        {
+            PaperSize ps = (PaperSize)e.ListItem;
+            e.Value = papersize(ps);
+        }
+
+        private void comboBox_papers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Last_Paper_Used = comboBox_papers.Text;
+            Properties.Settings.Default.Save();
+        }
+
+        private void button_print_Click(object sender, EventArgs e)
+        {
+            int number_of_pages = (int)(numericUpDown_totalCount.Value / numericUpDown_labelsPerPage.Value);
+
+            int start_serial = 0;
+            for (int p = 0; p < number_of_pages; p++)
+            {
+                encodeRow(start_serial);
+                //_print_doc.Print();
+
+                start_serial += (int)numericUpDown_labelsPerPage.Value;
+            }
+        }
+
+        private void numericUpDown_totalCount_ValueChanged(object sender, EventArgs e)
+        {
+            int labels_per_row = (int)numericUpDown_labelsPerPage.Value;
+            int total_count = (int)numericUpDown_totalCount.Value;
+
+            while (total_count % labels_per_row != 0)
+                total_count++;
+            numericUpDown_totalCount.Value = total_count;
+
+            int row_count = (int)(numericUpDown_totalCount.Value / numericUpDown_labelsPerPage.Value);
+            label_print_total.Text = string.Format("Print Total\r\n({0} rows)", row_count);
+        }
+
+        private void saveToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.DefaultExt = "lsdoc";
+            dlg.Filter = "lsdoc | Label Setting Document";
+            dlg.FileName = "*.lsdoc";
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                XmlDocument doc = new XmlDocument();
+
+                XmlNode n = doc.CreateElement("Settings");
+
+                XmlAttribute a = doc.CreateAttribute("Size");
+                a.Value = numericUpDown_size.Value.ToString();
+                n.Attributes.Append(a);
+
+                a = doc.CreateAttribute("Correction");
+                a.Value = comboBox_correctionLevel.Text;
+                n.Attributes.Append(a);
+
+                doc.AppendChild(n);
+
+                doc.Save(dlg.FileName);
+            }
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "lsdoc | Label Setting Document";
+            dlg.FileName = "*.lsdoc";
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.Load(dlg.FileName);
+
+                XmlNode n = doc.GetElementsByTagName("Settings")[0];
+                XmlAttribute a = n.Attributes["Size"];
+                numericUpDown_size.Value = Convert.ToDecimal(a.Value);
+
+            }
         }
     }
 }
