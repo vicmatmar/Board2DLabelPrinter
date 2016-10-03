@@ -536,17 +536,46 @@ namespace Board2DLabelPrinter
             {
                 XmlDocument doc = new XmlDocument();
 
-                XmlNode n = doc.CreateElement("Settings");
+                XmlNode node_top = doc.CreateElement("Settings");
 
-                XmlAttribute a = doc.CreateAttribute("Size");
+
+                XmlNode node_label = doc.CreateElement("Label");
+
+                XmlAttribute a = doc.CreateAttribute("Units");
+                a.Value = comboBox_units.Text;
+                node_label.Attributes.Append(a);
+
+                a = doc.CreateAttribute("Size");
                 a.Value = numericUpDown_size.Value.ToString();
-                n.Attributes.Append(a);
+                node_label.Attributes.Append(a);
 
                 a = doc.CreateAttribute("Correction");
                 a.Value = comboBox_correctionLevel.Text;
-                n.Attributes.Append(a);
+                node_label.Attributes.Append(a);
 
-                doc.AppendChild(n);
+                node_top.AppendChild(node_label);
+
+                XmlNode node_row = doc.CreateElement("RowSettings");
+
+                a = doc.CreateAttribute("LabelsPerRow");
+                a.Value = numericUpDown_labelsPerPage.Value.ToString();
+                node_row.Attributes.Append(a);
+
+                a = doc.CreateAttribute("LabelSpacing");
+                a.Value = numericUpDown_spaceBetween.Value.ToString();
+                node_row.Attributes.Append(a);
+
+                a = doc.CreateAttribute("TopMargin");
+                a.Value = numericUpDown_topMargin.Value.ToString();
+                node_row.Attributes.Append(a);
+
+                a = doc.CreateAttribute("LeftMargin");
+                a.Value = numericUpDown_leftMargin.Value.ToString();
+                node_row.Attributes.Append(a);
+
+                node_top.AppendChild(node_row);
+
+                doc.AppendChild(node_top);
 
                 doc.Save(dlg.FileName);
             }
@@ -563,10 +592,28 @@ namespace Board2DLabelPrinter
                 XmlDocument doc = new XmlDocument();
                 doc.Load(dlg.FileName);
 
-                XmlNode n = doc.GetElementsByTagName("Settings")[0];
-                XmlAttribute a = n.Attributes["Size"];
+                XmlNode node_top = doc["Settings"];
+                XmlNode node_label = node_top["Label"];
+
+
+                XmlAttribute a = node_label.Attributes["Units"];
+                comboBox_units.Text = a.Value;
+
+                a = node_label.Attributes["Size"];
                 numericUpDown_size.Value = Convert.ToDecimal(a.Value);
 
+                XmlNode node_row = node_top["RowSettings"];
+                a = node_row.Attributes["LabelsPerRow"];
+                numericUpDown_labelsPerPage.Value = Convert.ToDecimal(a.Value);
+
+                a = node_row.Attributes["LabelSpacing"];
+                numericUpDown_spaceBetween.Value = Convert.ToDecimal(a.Value);
+
+                a = node_row.Attributes["TopMargin"];
+                numericUpDown_topMargin.Value = Convert.ToDecimal(a.Value);
+
+                a = node_row.Attributes["LeftMargin"];
+                numericUpDown_leftMargin.Value = Convert.ToDecimal(a.Value);
             }
         }
     }
