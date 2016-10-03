@@ -21,7 +21,6 @@ namespace Board2DLabelPrinter
         QrCode[] _qrCodes;
         Dictionary<char, Gma.QrCodeNet.Encoding.ErrorCorrectionLevel> _dic_error_correction = new Dictionary<char, ErrorCorrectionLevel>();
         Dictionary<char, QuietZoneModules> _dic_quite_zone = new Dictionary<char, QuietZoneModules>();
-        PrintDocument _print_doc = new PrintDocument();
 
         // private class used to hold product selection combobox
         class product_desc
@@ -162,9 +161,8 @@ namespace Board2DLabelPrinter
             }
             else
             {
-                comboBox_printers.Text = _print_doc.PrinterSettings.PrinterName;
-                Properties.Settings.Default.Last_Printer_Used_Name = _print_doc.PrinterSettings.PrinterName;
-                Properties.Settings.Default.Save();
+                PrintDocument print_doc = new PrintDocument();
+                comboBox_printers.Text = print_doc.PrinterSettings.PrinterName;
             }
 
             // Don't let the window shrink smaller
@@ -456,10 +454,11 @@ namespace Board2DLabelPrinter
             Properties.Settings.Default.Save();
 
             comboBox_papers.Items.Clear();
-            _print_doc.PrinterSettings.PrinterName = comboBox_printers.Text;
+            PrintDocument print_doc = new PrintDocument();
+            print_doc.PrinterSettings.PrinterName = comboBox_printers.Text;
 
             bool found_last_paper_used = false;
-            foreach (PaperSize ps in _print_doc.PrinterSettings.PaperSizes)
+            foreach (PaperSize ps in print_doc.PrinterSettings.PaperSizes)
             {
                 comboBox_papers.Items.Add(ps);
                 if (papersize(ps) == Properties.Settings.Default.Last_Paper_Used)
@@ -471,7 +470,7 @@ namespace Board2DLabelPrinter
             }
             else
             {
-                PaperSize ps = _print_doc.DefaultPageSettings.PaperSize;
+                PaperSize ps = print_doc.DefaultPageSettings.PaperSize;
                 comboBox_papers.Text = papersize(ps);
             }
         }
@@ -496,12 +495,18 @@ namespace Board2DLabelPrinter
         private void button_print_Click(object sender, EventArgs e)
         {
             int number_of_pages = (int)(numericUpDown_totalCount.Value / numericUpDown_labelsPerPage.Value);
-
             int start_serial = 0;
+
+            PrintDocument print_doc = new PrintDocument();
+            print_doc.PrinterSettings.PrinterName = comboBox_printers.Text;
+            print_doc.DefaultPageSettings.PaperSize = (PaperSize) comboBox_papers.SelectedItem;
+            print_doc.PrintPage += printDocumentAll_PrintPage;
+
             for (int p = 0; p < number_of_pages; p++)
             {
                 encodeRow(start_serial);
-                //_print_doc.Print();
+
+                print_doc.Print();
 
                 start_serial += (int)numericUpDown_labelsPerPage.Value;
             }
