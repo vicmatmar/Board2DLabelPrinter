@@ -49,6 +49,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.numericUpDownZoomFactor = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.button_print = new System.Windows.Forms.Button();
+            this.label_print_total = new System.Windows.Forms.Label();
             this.numericUpDown_totalCount = new System.Windows.Forms.NumericUpDown();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.numericUpDown_topMargin = new System.Windows.Forms.NumericUpDown();
@@ -67,8 +69,6 @@
             this.label12 = new System.Windows.Forms.Label();
             this.comboBox_papers = new System.Windows.Forms.ComboBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.label_print_total = new System.Windows.Forms.Label();
-            this.button_print = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -367,6 +367,25 @@
             this.groupBox3.TabIndex = 20;
             this.groupBox3.TabStop = false;
             // 
+            // button_print
+            // 
+            this.button_print.Location = new System.Drawing.Point(164, 188);
+            this.button_print.Name = "button_print";
+            this.button_print.Size = new System.Drawing.Size(75, 23);
+            this.button_print.TabIndex = 30;
+            this.button_print.Text = "&Print";
+            this.button_print.UseVisualStyleBackColor = true;
+            this.button_print.Click += new System.EventHandler(this.button_print_Click);
+            // 
+            // label_print_total
+            // 
+            this.label_print_total.AutoSize = true;
+            this.label_print_total.Location = new System.Drawing.Point(12, 184);
+            this.label_print_total.Name = "label_print_total";
+            this.label_print_total.Size = new System.Drawing.Size(55, 13);
+            this.label_print_total.TabIndex = 29;
+            this.label_print_total.Text = "Print Total";
+            // 
             // numericUpDown_totalCount
             // 
             this.numericUpDown_totalCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -605,25 +624,6 @@
             this.groupBox4.TabIndex = 25;
             this.groupBox4.TabStop = false;
             // 
-            // label_print_total
-            // 
-            this.label_print_total.AutoSize = true;
-            this.label_print_total.Location = new System.Drawing.Point(12, 184);
-            this.label_print_total.Name = "label_print_total";
-            this.label_print_total.Size = new System.Drawing.Size(55, 13);
-            this.label_print_total.TabIndex = 29;
-            this.label_print_total.Text = "Print Total";
-            // 
-            // button_print
-            // 
-            this.button_print.Location = new System.Drawing.Point(164, 184);
-            this.button_print.Name = "button_print";
-            this.button_print.Size = new System.Drawing.Size(75, 23);
-            this.button_print.TabIndex = 30;
-            this.button_print.Text = "&Print";
-            this.button_print.UseVisualStyleBackColor = true;
-            this.button_print.Click += new System.EventHandler(this.button_print_Click);
-            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -646,14 +646,14 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem1
             // 
             this.saveToolStripMenuItem1.Name = "saveToolStripMenuItem1";
-            this.saveToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem1.Size = new System.Drawing.Size(103, 22);
             this.saveToolStripMenuItem1.Text = "&Save";
             this.saveToolStripMenuItem1.Click += new System.EventHandler(this.saveToolStripMenuItem1_Click);
             // 

@@ -477,7 +477,7 @@ namespace Board2DLabelPrinter
 
         string papersize(PaperSize ps)
         {
-            return string.Format("{0} ({1:0.000} x {2:0.000})", ps.PaperName, (float)ps.Height / 100, (float)ps.Width / 100);
+            return string.Format("{0} ({1:0.000} x {2:0.000})", ps.PaperName, (float)ps.Width / 100, (float)ps.Height / 100);
         }
 
         private void comboBox_papers_Format(object sender, ListControlConvertEventArgs e)
@@ -494,21 +494,31 @@ namespace Board2DLabelPrinter
 
         private void button_print_Click(object sender, EventArgs e)
         {
-            int number_of_pages = (int)(numericUpDown_totalCount.Value / numericUpDown_labelsPerPage.Value);
-            int start_serial = 0;
-
-            PrintDocument print_doc = new PrintDocument();
-            print_doc.PrinterSettings.PrinterName = comboBox_printers.Text;
-            print_doc.DefaultPageSettings.PaperSize = (PaperSize) comboBox_papers.SelectedItem;
-            print_doc.PrintPage += printDocumentAll_PrintPage;
-
-            for (int p = 0; p < number_of_pages; p++)
+            Cursor cursor_old = Cursor;
+            Cursor = Cursors.WaitCursor;
+            try
             {
-                encodeRow(start_serial);
+                int number_of_pages = (int)(numericUpDown_totalCount.Value / numericUpDown_labelsPerPage.Value);
+                int start_serial = 0;
 
-                print_doc.Print();
+                PrintDocument print_doc = new PrintDocument();
+                print_doc.PrintController = new StandardPrintController();
+                print_doc.PrinterSettings.PrinterName = comboBox_printers.Text;
+                print_doc.DefaultPageSettings.PaperSize = (PaperSize)comboBox_papers.SelectedItem;
+                print_doc.PrintPage += printDocumentAll_PrintPage;
 
-                start_serial += (int)numericUpDown_labelsPerPage.Value;
+                for (int p = 0; p < number_of_pages; p++)
+                {
+                    encodeRow(start_serial);
+
+                    print_doc.Print();
+
+                    start_serial += (int)numericUpDown_labelsPerPage.Value;
+                }
+            }
+            finally
+            {
+                Cursor = cursor_old;
             }
         }
 
@@ -534,14 +544,33 @@ namespace Board2DLabelPrinter
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
+                ///////////////////////////////////
                 XmlDocument doc = new XmlDocument();
 
+                ///////////////////////////////////
                 XmlNode node_top = doc.CreateElement("Settings");
 
+                ///////////////////////////////////
+                XmlNode node_printer = doc.CreateElement("Printer");
 
+                XmlAttribute a = doc.CreateAttribute("Name");
+                a.Value = comboBox_printers.Text;
+                node_printer.Attributes.Append(a);
+
+                a = doc.CreateAttribute("Paper");
+                a.Value = comboBox_papers.Text;
+                node_printer.Attributes.Append(a);
+
+                node_top.AppendChild(node_printer);
+
+                ///////////////////////////////////
                 XmlNode node_label = doc.CreateElement("Label");
 
-                XmlAttribute a = doc.CreateAttribute("Units");
+                a = doc.CreateAttribute("Product");
+                a.Value = comboBox_products.Text;
+                node_label.Attributes.Append(a);
+
+                a = doc.CreateAttribute("Units");
                 a.Value = comboBox_units.Text;
                 node_label.Attributes.Append(a);
 
@@ -555,6 +584,7 @@ namespace Board2DLabelPrinter
 
                 node_top.AppendChild(node_label);
 
+                ///////////////////////////////////
                 XmlNode node_row = doc.CreateElement("RowSettings");
 
                 a = doc.CreateAttribute("LabelsPerRow");
@@ -575,6 +605,7 @@ namespace Board2DLabelPrinter
 
                 node_top.AppendChild(node_row);
 
+                ///////////////////////////////////
                 doc.AppendChild(node_top);
 
                 doc.Save(dlg.FileName);
