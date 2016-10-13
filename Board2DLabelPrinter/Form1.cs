@@ -14,6 +14,9 @@ using System.Drawing.Printing;
 using Gma.QrCodeNet.Encoding;
 using Gma.QrCodeNet.Encoding.Windows.Render;
 using System.Xml;
+
+using BoardSerialData;
+
 namespace Board2DLabelPrinter
 {
     public partial class Form1 : Form
@@ -138,12 +141,13 @@ namespace Board2DLabelPrinter
         private void Form1_Load(object sender, EventArgs e)
         {
             // Get the products
-            ManufacturingStore_DataContext dc = Utils.DC;
-
-            product_desc[] products =
-                dc.Products.Select(s =>
-                    new product_desc { Id = s.Id, Name = s.Name, ModelString = s.ModelString }).OrderBy(s => s.ModelString).ToArray();
-            comboBox_products.DataSource = products;
+            using (BoardSerial_DataContext dc = new BoardSerial_DataContext())
+            {
+                product_desc[] products =
+                    dc.Products.Select(s =>
+                        new product_desc { Id = s.Id, Name = s.Name, ModelString = s.ModelString }).OrderBy(s => s.ModelString).ToArray();
+                comboBox_products.DataSource = products;
+            }
 
 
             // Get the printers
@@ -195,7 +199,8 @@ namespace Board2DLabelPrinter
             product_desc product = (product_desc)comboBox_products.SelectedItem;
 
             // Where we start the serials needs to be implemented
-            string serial = SerialNumber.BuildSerial(product.Id, 0);
+            SerialNumber.Week_Year wy = SerialNumber.GetWeekYearNumber();
+            string serial = SerialNumber.BuildSerial(product.Id, 0, wy.Week, wy.Year);
             textBoxData.Text = serial;
 
             encodeRow();
@@ -272,7 +277,6 @@ namespace Board2DLabelPrinter
             pictureRefreshAll();
         }
 
-
         /// <summary>
         /// Encodes a row or page (all labels in a row)
         /// </summary>
@@ -292,9 +296,10 @@ namespace Board2DLabelPrinter
             _qrCodes = new QrCode[n];
             // Where we start the serials needs to be implemented
             int serial = start_serial;
+            SerialNumber.Week_Year wy = SerialNumber.GetWeekYearNumber();
             for (int i = 0; i < n; i++)
             {
-                string complete_serial_str = SerialNumber.BuildSerial(product.Id, serial++);
+                string complete_serial_str = SerialNumber.BuildSerial(product.Id, serial++, wy.Week, wy.Year);
                 _qrCodes[i] = qrEncoder.Encode(complete_serial_str);
             }
 
@@ -620,31 +625,48 @@ namespace Board2DLabelPrinter
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
+                ///////////////////////////////////
                 XmlDocument doc = new XmlDocument();
                 doc.Load(dlg.FileName);
 
+                ///////////////////////////////////
                 XmlNode node_top = doc["Settings"];
+
+                ///////////////////////////////////
+                XmlNode node_printer = node_top["Printer"];
+                if (node_printer != null)
+                {
+                    XmlAttribute a = node_printer.Attributes["Name"];
+                    try { comboBox_printers.Text = a.Value; } catch { };
+
+                    a = node_printer.Attributes["Paper"];
+                    try { comboBox_papers.Text = a.Value; } catch { };
+                }
+
+
+                ///////////////////////////////////
                 XmlNode node_label = node_top["Label"];
+                if (node_label != null)
+                {
+                    XmlAttribute a = node_label.Attributes["Units"];
+                    try { comboBox_units.Text = a.Value; } catch { };
 
+                    a = node_label.Attributes["Size"];
+                    try { numericUpDown_size.Value = Convert.ToDecimal(a.Value); } catch { };
 
-                XmlAttribute a = node_label.Attributes["Units"];
-                comboBox_units.Text = a.Value;
+                    XmlNode node_row = node_top["RowSettings"];
+                    a = node_row.Attributes["LabelsPerRow"];
+                    try { numericUpDown_labelsPerPage.Value = Convert.ToDecimal(a.Value); } catch { };
 
-                a = node_label.Attributes["Size"];
-                numericUpDown_size.Value = Convert.ToDecimal(a.Value);
+                    a = node_row.Attributes["LabelSpacing"];
+                    try { numericUpDown_spaceBetween.Value = Convert.ToDecimal(a.Value); } catch { };
 
-                XmlNode node_row = node_top["RowSettings"];
-                a = node_row.Attributes["LabelsPerRow"];
-                numericUpDown_labelsPerPage.Value = Convert.ToDecimal(a.Value);
+                    a = node_row.Attributes["TopMargin"];
+                    try { numericUpDown_topMargin.Value = Convert.ToDecimal(a.Value); } catch { };
 
-                a = node_row.Attributes["LabelSpacing"];
-                numericUpDown_spaceBetween.Value = Convert.ToDecimal(a.Value);
-
-                a = node_row.Attributes["TopMargin"];
-                numericUpDown_topMargin.Value = Convert.ToDecimal(a.Value);
-
-                a = node_row.Attributes["LeftMargin"];
-                numericUpDown_leftMargin.Value = Convert.ToDecimal(a.Value);
+                    a = node_row.Attributes["LeftMargin"];
+                    try { numericUpDown_leftMargin.Value = Convert.ToDecimal(a.Value); } catch { };
+                }
             }
         }
     }

@@ -10,6 +10,8 @@ using System.Globalization;
 using System.Net.NetworkInformation;
 using Microsoft.Win32;
 
+using BoardSerialData;
+
 namespace Board2DLabelPrinter
 {
     class SerialNumber
@@ -17,17 +19,23 @@ namespace Board2DLabelPrinter
         static SqlConnectionStringBuilder _constr = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
         public static SqlConnectionStringBuilder ConnectionSB { get { return _constr; } set { _constr = value; } }
 
-        static ManufacturingStore_DataContext _data_context =
-            new ManufacturingStore_DataContext(ConnectionSB.ConnectionString);
-
+        public class Week_Year
+        {
+            public Week_Year(int week, int year)
+            {
+                Week = week;
+                Year = year;
+            }
+            public int Week;
+            public int Year;
+        }
 
         /// <summary>
         /// Gets the week number based on database current date
         /// </summary>
         /// <returns>4 digit week + year string</returns>
-        static string getWeekYearNumber()
+        public static Week_Year GetWeekYearNumber()
         {
-            string weekyear_num = null;
             int year = -1;
             int week = -1;
             using (SqlConnection con = new SqlConnection(ConnectionSB.ConnectionString))
@@ -52,18 +60,13 @@ namespace Board2DLabelPrinter
                 throw new Exception("Unable to determine week or year info");
             }
 
-            string year_str = year.ToString().Substring(2);
-            weekyear_num = string.Format("{0:D2}{1}", week, year_str);
-            return weekyear_num;
+            int year_2digit = Convert.ToInt32(year.ToString().Substring(2));
+            return new Week_Year(week, year_2digit);
         }
 
-        public static string BuildSerial(int product_id, int serial_num)
+        public static string BuildSerial(int product_id, int serial_num, int week, int year)
         {
-
-            int teststation_id = _data_context.TestStationMachines.Where(m => m.Name == Environment.MachineName).Select(s => s.Id).Single<int>();
-
-
-            string week_number = getWeekYearNumber();
+            string week_number = string.Format("{0:D2}{1}", week, year);
 
             string serial_number = string.Format("{0:D3}{1}", product_id, week_number);
             serial_number += string.Format("{0:D6}", serial_num);
