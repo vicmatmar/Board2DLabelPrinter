@@ -15,7 +15,8 @@ using Gma.QrCodeNet.Encoding;
 using Gma.QrCodeNet.Encoding.Windows.Render;
 using System.Xml;
 
-using BoardSerialData;
+using CentraliteData;
+using CentraliteDataUtils;
 
 namespace Board2DLabelPrinter
 {
@@ -24,6 +25,9 @@ namespace Board2DLabelPrinter
         QrCode[] _qrCodes;
         Dictionary<char, Gma.QrCodeNet.Encoding.ErrorCorrectionLevel> _dic_error_correction = new Dictionary<char, ErrorCorrectionLevel>();
         Dictionary<char, QuietZoneModules> _dic_quite_zone = new Dictionary<char, QuietZoneModules>();
+
+        // This is id number for the name of the process associated with bardcode creation
+        int _barcode_create_label_process_id;
 
         // private class used to hold product selection combobox
         class product_desc
@@ -46,6 +50,13 @@ namespace Board2DLabelPrinter
             _dic_quite_zone.Add('2', QuietZoneModules.Two);
             _dic_quite_zone.Add('4', QuietZoneModules.Four);
 
+            CentraliteDataUtils.DataUtils.DBConnStr += Properties.Settings.Default.DBConnectionString;
+
+            using(CentraliteDataContext dc = DataUtils.DataContext)
+            {
+                _barcode_create_label_process_id = 
+                    dc.BoardProcesses.Where(c => c.Name == "Barcode Creation").Select(c => c.Id).Single<int>();
+            }
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
@@ -141,7 +152,7 @@ namespace Board2DLabelPrinter
         private void Form1_Load(object sender, EventArgs e)
         {
             // Get the products
-            using (BoardSerial_DataContext dc = new BoardSerial_DataContext())
+            using (CentraliteDataContext dc = DataUtils.DataContext)
             {
                 product_desc[] products =
                     dc.Products.Select(s =>
@@ -199,11 +210,10 @@ namespace Board2DLabelPrinter
             product_desc product = (product_desc)comboBox_products.SelectedItem;
 
             // Where we start the serials needs to be implemented
-            SerialNumber.Week_Year wy = SerialNumber.GetWeekYearNumber();
-            string serial = SerialNumber.BuildSerial(product.Id, 0, wy.Week, wy.Year);
+            BoardSerialNumber.Week_Year wy = BoardSerialNumber.GetWeekYearNumber();
+            string serial = BoardSerialNumber.BuildSerial(product.Id, 0, wy.Week, wy.Year);
             textBoxData.Text = serial;
-
-            encodeRow();
+            encodeRow(week:wy.Week, year:wy.Year);
         }
 
         void pictureRefreshAll()
@@ -277,10 +287,7 @@ namespace Board2DLabelPrinter
             pictureRefreshAll();
         }
 
-        /// <summary>
-        /// Encodes a row or page (all labels in a row)
-        /// </summary>
-        void encodeRow(int start_serial = 0)
+        void encodeRow(int week=0, int year=0, int start_serial = 0)
         {
             pictureBox1.CreateGraphics().Clear(Color.Black);
             pictureBox2.CreateGraphics().Clear(Color.Black);
@@ -296,10 +303,9 @@ namespace Board2DLabelPrinter
             _qrCodes = new QrCode[n];
             // Where we start the serials needs to be implemented
             int serial = start_serial;
-            SerialNumber.Week_Year wy = SerialNumber.GetWeekYearNumber();
             for (int i = 0; i < n; i++)
             {
-                string complete_serial_str = SerialNumber.BuildSerial(product.Id, serial++, wy.Week, wy.Year);
+                string complete_serial_str = BoardSerialNumber.BuildSerial(product.Id, serial++, week, year);
                 _qrCodes[i] = qrEncoder.Encode(complete_serial_str);
             }
 
@@ -311,7 +317,8 @@ namespace Board2DLabelPrinter
 
         private void comboBoxCorrectionLevel_SelectedIndexChanged(object sender, EventArgs e)
         {
-            encodeRow();
+            BoardSerialNumber.Week_Year wy = BoardSerialNumber.GetWeekYearNumber();
+            encodeRow(week: wy.Week, year: wy.Year);
         }
 
         private void numericUpDownZoomFactor_ValueChanged(object sender, EventArgs e)
@@ -435,7 +442,8 @@ namespace Board2DLabelPrinter
                 total_count++;
             numericUpDown_totalCount.Value = total_count;
 
-            encodeRow();
+            BoardSerialNumber.Week_Year wy = BoardSerialNumber.GetWeekYearNumber();
+            encodeRow(week: wy.Week, year: wy.Year);
         }
 
         private void numericUpDown_SpaceBetween_ValueChanged(object sender, EventArgs e)
@@ -503,7 +511,8 @@ namespace Board2DLabelPrinter
             Cursor = Cursors.WaitCursor;
             try
             {
-                int number_of_pages = (int)(numericUpDown_totalCount.Value / numericUpDown_labelsPerPage.Value);
+                int labels_per_page = (int)numericUpDown_labelsPerPage.Value;
+                int number_of_pages = (int)(numericUpDown_totalCount.Value) / labels_per_page;
                 int start_serial = 0;
 
                 PrintDocument print_doc = new PrintDocument();
@@ -512,11 +521,15 @@ namespace Board2DLabelPrinter
                 print_doc.DefaultPageSettings.PaperSize = (PaperSize)comboBox_papers.SelectedItem;
                 print_doc.PrintPage += printDocumentAll_PrintPage;
 
+                BoardSerialNumber.Week_Year wy = BoardSerialNumber.GetWeekYearNumber();
                 for (int p = 0; p < number_of_pages; p++)
                 {
-                    encodeRow(start_serial);
+                    encodeRow(week: wy.Week, year: wy.Year, start_serial:start_serial);
 
                     print_doc.Print();
+
+                    insertSquenceToDatabase(week: wy.Week, year: wy.Year, 
+                        start_serial: start_serial, count: labels_per_page);
 
                     start_serial += (int)numericUpDown_labelsPerPage.Value;
                 }
@@ -525,6 +538,31 @@ namespace Board2DLabelPrinter
             {
                 Cursor = cursor_old;
             }
+        }
+
+        void insertSquenceToDatabase(int week = 0, int year = 0, int start_serial=0, int count=1)
+        {
+            int product_id = ((product_desc)comboBox_products.SelectedItem).Id;
+
+            List<BoardTracker> list = new List<BoardTracker>();
+            for (int i = 0; i < count; i++)
+            {
+                BoardTracker board = new BoardTracker();
+                board.BoardProcessId = _barcode_create_label_process_id;
+                board.Number = start_serial + i;
+                board.ProductId = product_id;
+                board.Week = (short)week;
+                board.Year = (short)year;
+
+                list.Add(board);
+            }
+
+            using(CentraliteDataContext dc = DataUtils.DataContext)
+            {
+                dc.BoardTrackers.InsertAllOnSubmit(list);
+                dc.SubmitChanges();
+            }
+
         }
 
         private void numericUpDown_totalCount_ValueChanged(object sender, EventArgs e)
