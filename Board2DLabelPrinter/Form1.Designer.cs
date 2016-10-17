@@ -471,7 +471,7 @@
             this.numericUpDown_labelsPerPage.TabIndex = 0;
             this.numericUpDown_labelsPerPage.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.numericUpDown_labelsPerPage.Value = new decimal(new int[] {
-            6,
+            1,
             0,
             0,
             0});

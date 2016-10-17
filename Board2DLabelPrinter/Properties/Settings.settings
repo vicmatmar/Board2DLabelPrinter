@@ -16,7 +16,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Labels_In_Row" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2</Value>
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="ManufacturingStore_RADConnectionString" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
