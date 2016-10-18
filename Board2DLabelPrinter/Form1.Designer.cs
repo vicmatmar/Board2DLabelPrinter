@@ -369,6 +369,7 @@
             // 
             // button_print
             // 
+            this.button_print.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_print.Location = new System.Drawing.Point(164, 188);
             this.button_print.Name = "button_print";
             this.button_print.Size = new System.Drawing.Size(75, 23);
@@ -379,8 +380,9 @@
             // 
             // label_print_total
             // 
+            this.label_print_total.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label_print_total.AutoSize = true;
-            this.label_print_total.Location = new System.Drawing.Point(12, 184);
+            this.label_print_total.Location = new System.Drawing.Point(12, 190);
             this.label_print_total.Name = "label_print_total";
             this.label_print_total.Size = new System.Drawing.Size(55, 13);
             this.label_print_total.TabIndex = 29;
