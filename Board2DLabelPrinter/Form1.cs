@@ -55,7 +55,7 @@ namespace Board2DLabelPrinter
             _dic_quite_zone.Add('2', QuietZoneModules.Two);
             _dic_quite_zone.Add('4', QuietZoneModules.Four);
 
-            CentraliteDataUtils.DataUtils.DBConnStr += Properties.Settings.Default.DBConnectionString;
+            CentraliteDataUtils.DataUtils.DBConnStr = Properties.Settings.Default.DBConnectionString;
 
             using(CentraliteDataContext dc = DataUtils.DataContext)
             {

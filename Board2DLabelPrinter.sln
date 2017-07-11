@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Board2DLabelPrinter", "Board2DLabelPrinter\Board2DLabelPrinter.csproj", "{C278D18A-AB6B-4FDE-BF0F-631D96167036}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardSerialNumber", "..\BoardSerialNumber\BoardSerialNumber\BoardSerialNumber.csproj", "{2FFFD086-BCCA-4F15-9222-AD4B7A8A6F70}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardSerialNumber", "BoardSerialNumber\BoardSerialNumber\BoardSerialNumber.csproj", "{2FFFD086-BCCA-4F15-9222-AD4B7A8A6F70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentraliteDataUtils", "..\CentraliteDataUtils\CentraliteDataUtils\CentraliteDataUtils.csproj", "{923234E3-7869-406D-B6C5-DBA2EEBC8624}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentraliteDataUtils", "CentraliteDataUtils\CentraliteDataUtils\CentraliteDataUtils.csproj", "{923234E3-7869-406D-B6C5-DBA2EEBC8624}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
